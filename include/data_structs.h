@@ -4,7 +4,6 @@
 #include <string>
 
 using std::cerr;
-using uint = unsigned int;
 
 template <typename T>
 struct Node {
@@ -12,14 +11,14 @@ struct Node {
 	Node<T>* next;
 };
 
-template <typename T>
+template <typename T, typename U = int>
 struct PrioNode {
-	uint prio;
 	T val;
+	U prio;
 	PrioNode<T>* next;
 };
 
-template <typename T>
+template <typename T = int>
 class Stack {
 private:
 	Node<T>* top;
@@ -36,7 +35,7 @@ public:
 	T pop() {
 		if (isEmpty()) {
 			cerr << "Stack overflow\n";
-			throw - 1;
+			throw -1;
 		}
 
 		auto val = top->val;
@@ -81,18 +80,63 @@ public:
 	}
 };
 
-template <typename T>
+template <typename T = int>
 class Queue {
+private:
+	Node<T>* top;
+	Node<T>* last;
+public:
+	virtual void enqueue(T val) {
+		Node<T>* no = new Node<T>;
+		no->val = val;
+		no->next = last;
+		if (top == nullptr) {
+			top = last = no;
+			return;
+		}
+		last = no;
+	}
+
+	virtual T dequeue() {
+		if (isEmpty()) {
+			cerr << "Queue underflow\n";
+			throw -1;
+		}
+		T val = top->val;
+		auto to_free = top;
+		top = top->next;
+		delete to_free;
+
+		if (top == nullptr) {
+			last = nullptr;
+		}
+
+		return val;
+	}
+
+	virtual bool isEmpty() const {
+		return top == nullptr;
+	}
+
+	virtual ~Queue() {
+		while (!isEmpty()) {
+			dequeue();
+		}
+	}
+};
+
+template <typename T = int>
+class QueueEx : public Queue<T>{
 private:
 	Stack<T> front, back;
 public:
-	Queue() : front(nullptr), back(nullptr) {};
+	QueueEx() : front(nullptr), back(nullptr) {};
 
-	void enqueue(T val) {
+	void enqueue(T val) override {
 		back.push(val);
 	}
 
-	T dequeue() {
+	T dequeue() override {
 		T val;
 		while (!back.isEmpty()) {
 			front.push(back.pop());
@@ -107,25 +151,27 @@ public:
 		return back;
 	}
 
-	bool isEmpty() const {
+	bool isEmpty() const override {
 		return back.isEmpty();
 	}
 
-	~Queue() {
+	~QueueEx() override {
 		while (!back.isEmpty()) {
 			back.pop();
 		}
 	}
 };
 
-template <typename T>
-class PrioQueue {
+template <typename T = int>
+class PrioQueue : public Queue{
 private:
 	PrioNode<T>* top;
 public:
 	PrioQueue() : top(nullptr) {}
 
-	void enqueue(T val, uint prio) {
+	void enqueue(T val) override = 0;
+
+	void enqueue(T val, int prio){
 		PrioNode<T>* prev = nullptr;
 		auto atual = top;
 		while (atual != nullptr && atual->prio > prio) {
@@ -144,7 +190,7 @@ public:
 		prev->next = no;
 	}
 
-	T dequeue() {
+	T dequeue() override {
 		if (isEmpty()) {
 			cerr << "Queue empty\n";
 			throw -1;
@@ -158,7 +204,7 @@ public:
 		return val;
 	}
 
-	bool isEmpty() const {
+	bool isEmpty() const override {
 		return top == nullptr;
 	}
 };
