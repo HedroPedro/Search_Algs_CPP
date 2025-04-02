@@ -10,12 +10,12 @@ if (POLICY CMP0141)
 endif()
 
 project ("Search_Algs_CPP")
-file (GLOB_RECURSE MY_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
+file (GLOB_RECURSE MY_SRC CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/*.cpp")
 # Adicione a origem ao executável deste projeto.
 add_executable(${CMAKE_PROJECT_NAME})
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${MY_SRC})
-target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 
 set_property(TARGET Search_Algs_CPP PROPERTY CXX_STANDARD 20)
 
